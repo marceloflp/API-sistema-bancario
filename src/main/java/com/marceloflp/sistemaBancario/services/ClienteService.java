@@ -2,11 +2,13 @@ package com.marceloflp.sistemaBancario.services;
 
 import java.util.List;
 
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.marceloflp.sistemaBancario.entities.Cliente;
 import com.marceloflp.sistemaBancario.repositories.ClienteRepository;
+import com.marceloflp.sistemaBancario.services.exceptions.DatabaseException;
+import com.marceloflp.sistemaBancario.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class ClienteService {
@@ -25,7 +27,7 @@ public class ClienteService {
 	
 	public Cliente buscarClientePorId(Long id) {
 		Cliente cliente = repository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Erro genérico: cliente de id " + id + " não encontrado!"));
+				.orElseThrow(() -> new ResourceNotFoundException(id));
 		
 		return cliente;
 	}
@@ -37,14 +39,13 @@ public class ClienteService {
 	public Cliente atualizaCliente(Long id, Cliente clienteAtualizado) {
 		try {
 			Cliente cliente = repository.findById(id)
-					.orElseThrow(() -> new RuntimeException("Erro genérico: cliente de id " + id + " não encontrado!"));
+					.orElseThrow(() -> new ResourceNotFoundException(id));
 			
 			updateCliente(cliente, clienteAtualizado);
 			return repository.save(cliente);
 			
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
+		} catch (DataIntegrityViolationException e) {
+			throw new DatabaseException("Não foi possível atualizar o cliente devido a uma restrição de integridade.");
 		}
 	}
 
@@ -59,13 +60,12 @@ public class ClienteService {
 	public void deletarCliente(Long id) {
 		try {
 			
-			if(!repository.existsById(id)) throw new RuntimeException("Erro genérico: cliente de id " + id + " não encontrado!");
 			Cliente cliente = repository.findById(id)
-					.orElseThrow(() -> new RuntimeException("Erro genérico: cliente de id " + id + " não encontrado!"));
+					.orElseThrow(() -> new ResourceNotFoundException(id));
 			
 			repository.delete(cliente);
-		}catch(EmptyResultDataAccessException e) {
-			throw new RuntimeException("Erro genérico: cliente de id " + id + " não encontrado!");
+		} catch(DataIntegrityViolationException e) {
+			throw new DatabaseException("Não foi possível excluir o cliente devido a uma restrição de integridade.");
 		}
 	}
 }
