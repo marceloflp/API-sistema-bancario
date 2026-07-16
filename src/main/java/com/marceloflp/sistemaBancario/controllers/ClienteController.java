@@ -27,21 +27,21 @@ public class ClienteController {
 		this.service = service;
 	}
 	
-	@GetMapping("/buscarTodos")
+	@GetMapping()
 	public ResponseEntity<List<Cliente>> buscarClientes(){
 		List<Cliente> clientes = service.buscarClientes();
 		
 		return ResponseEntity.ok().body(clientes);
 	}
 
-	@GetMapping("/buscarCliente/{id}")
+	@GetMapping("/{id}")
 	public ResponseEntity<Cliente> buscarCliente(@PathVariable Long id){
 		Cliente cliente = service.buscarClientePorId(id);
 		
 		return ResponseEntity.ok().body(cliente);
 	}
 	
-	@PostMapping("/criarNovoCliente")
+	@PostMapping()
 	public ResponseEntity<Cliente> criarCliente(@RequestBody Cliente body){
 		Cliente cliente = service.criarCliente(body);
 		
@@ -52,14 +52,14 @@ public class ClienteController {
 		return ResponseEntity.created(uri).body(cliente);
 	}
 	
-	@PutMapping("/atualizarCliente/{id}")
+	@PutMapping("/{id}")
 	public ResponseEntity<Cliente> atualizarCliente(@PathVariable Long id, @RequestBody Cliente body){
 		Cliente cliente = service.atualizaCliente(id, body);
 		
 		return ResponseEntity.ok().body(cliente);
 	}
 	
-	@DeleteMapping("/deletarCliente/{id}")
+	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deletarCliente(@PathVariable Long id){
 		service.deletarCliente(id);
 		

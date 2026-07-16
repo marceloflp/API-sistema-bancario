@@ -12,8 +12,6 @@ import com.marceloflp.sistemaBancario.services.exceptions.ResourceNotFoundExcept
 
 @Service
 public class ClienteService {
-	
-	// O TRATAMENTO DE EXCEÇÕES SERÁ FEITO DEPOIS
 
 	private final ClienteRepository repository;
 
