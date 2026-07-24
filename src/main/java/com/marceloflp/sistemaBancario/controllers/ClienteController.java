@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.marceloflp.sistemaBancario.dtos.ClienteRequestDTO;
+import com.marceloflp.sistemaBancario.dtos.ClienteResponseDTO;
 import com.marceloflp.sistemaBancario.entities.Cliente;
 import com.marceloflp.sistemaBancario.services.ClienteService;
 
@@ -28,21 +30,21 @@ public class ClienteController {
 	}
 	
 	@GetMapping()
-	public ResponseEntity<List<Cliente>> buscarClientes(){
-		List<Cliente> clientes = service.buscarClientes();
+	public ResponseEntity<List<ClienteResponseDTO>> buscarClientes(){
+		List<ClienteResponseDTO> clientes = service.buscarClientes();
 		
 		return ResponseEntity.ok().body(clientes);
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Cliente> buscarCliente(@PathVariable Long id){
-		Cliente cliente = service.buscarClientePorId(id);
+	public ResponseEntity<ClienteResponseDTO> buscarCliente(@PathVariable Long id){
+		ClienteResponseDTO cliente = service.buscarClientePorId(id);
 		
 		return ResponseEntity.ok().body(cliente);
 	}
 	
 	@PostMapping()
-	public ResponseEntity<Cliente> criarCliente(@RequestBody Cliente body){
+	public ResponseEntity<Cliente> criarCliente(@RequestBody ClienteRequestDTO body){
 		Cliente cliente = service.criarCliente(body);
 		
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -53,8 +55,8 @@ public class ClienteController {
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<Cliente> atualizarCliente(@PathVariable Long id, @RequestBody Cliente body){
-		Cliente cliente = service.atualizaCliente(id, body);
+	public ResponseEntity<ClienteResponseDTO> atualizarCliente(@PathVariable Long id, @RequestBody Cliente body){
+		ClienteResponseDTO cliente = service.atualizaCliente(id, body);
 		
 		return ResponseEntity.ok().body(cliente);
 	}
