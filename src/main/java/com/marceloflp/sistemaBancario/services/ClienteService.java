@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import com.marceloflp.sistemaBancario.dtos.ClienteRequestDTO;
+import com.marceloflp.sistemaBancario.dtos.ClienteResponseDTO;
 import com.marceloflp.sistemaBancario.entities.Cliente;
 import com.marceloflp.sistemaBancario.repositories.ClienteRepository;
 import com.marceloflp.sistemaBancario.services.exceptions.DatabaseException;
@@ -19,28 +21,38 @@ public class ClienteService {
 		this.repository = repository;
 	}
 	
-	public List<Cliente> buscarClientes(){
-		return repository.findAll();
+	public List<ClienteResponseDTO> buscarClientes(){
+		List<Cliente> clientes = repository.findAll();
+		return clientes.stream()
+				.map(this::toDTO)
+				.toList();
 	}
 	
-	public Cliente buscarClientePorId(Long id) {
+	public ClienteResponseDTO buscarClientePorId(Long id) {
 		Cliente cliente = repository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(id));
 		
-		return cliente;
+		return toDTO(cliente);
 	}
 	
-	public Cliente criarCliente(Cliente cliente) {
+	public Cliente criarCliente(ClienteRequestDTO dto) {
+		Cliente cliente = new Cliente();
+		cliente.setCpf(dto.cpf());
+		cliente.setEmail(dto.email());
+		cliente.setNome(dto.nome());
+		cliente.setSenha(dto.senha());
+		cliente.setNumeroTelefone(dto.numeroTelefone());
 		return repository.save(cliente);
 	}
 	
-	public Cliente atualizaCliente(Long id, Cliente clienteAtualizado) {
+	public ClienteResponseDTO atualizaCliente(Long id, Cliente clienteAtualizado) {
 		try {
 			Cliente cliente = repository.findById(id)
 					.orElseThrow(() -> new ResourceNotFoundException(id));
 			
 			updateCliente(cliente, clienteAtualizado);
-			return repository.save(cliente);
+			repository.save(cliente);
+			return toDTO(cliente);
 			
 		} catch (DataIntegrityViolationException e) {
 			throw new DatabaseException("Não foi possível atualizar o cliente devido a uma restrição de integridade.");
@@ -65,5 +77,9 @@ public class ClienteService {
 		} catch(DataIntegrityViolationException e) {
 			throw new DatabaseException("Não foi possível excluir o cliente devido a uma restrição de integridade.");
 		}
+	}
+	
+	public ClienteResponseDTO toDTO(Cliente cliente) {
+		return new ClienteResponseDTO(cliente.getIdCliente(), cliente.getNome(), cliente.getEmail(), cliente.getNumeroTelefone());
 	}
 }
