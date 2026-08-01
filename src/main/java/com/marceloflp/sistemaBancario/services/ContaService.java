@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import com.marceloflp.sistemaBancario.dtos.ContaRequestDTO;
+import com.marceloflp.sistemaBancario.dtos.ContaResponseDTO;
 import com.marceloflp.sistemaBancario.entities.Conta;
 import com.marceloflp.sistemaBancario.repositories.ContaRepository;
 import com.marceloflp.sistemaBancario.services.exceptions.DatabaseException;
@@ -19,40 +21,51 @@ public class ContaService {
 		this.repository = repository;
 	}
 	
-	public List<Conta> buscarContas(){
-		return repository.findAll();
+	public List<ContaResponseDTO> buscarContas(){
+		List<Conta> contas = repository.findAll();
+		return contas.stream()
+				.map(this::toDTO)
+				.toList();
 	}
 	
-	public Conta buscarContaPorId(Long id) {
+	public ContaResponseDTO buscarContaPorId(Long id) {
 		Conta conta = repository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(id));
 		
-		return conta;
+		return toDTO(conta);
 	}
 	
-	public Conta criarConta(Conta conta) {
-		return repository.save(conta);
+	public ContaResponseDTO criarConta(ContaRequestDTO dto) {
+		
+		Conta conta = new Conta();
+		conta.setAgencia(dto.agencia());
+		conta.setNumeroConta(dto.numeroConta());
+		conta.setStatus(dto.status());
+		conta.setTipo(conta.getTipo());
+		
+		repository.save(conta);
+		return toDTO(conta);
 	}
 	
-	public Conta atualizaConta(Long id, Conta contaAtualizado) {
+	public ContaResponseDTO atualizaConta(Long id, ContaRequestDTO dto) {
 		try {
 			Conta conta = repository.findById(id)
 					.orElseThrow(() -> new ResourceNotFoundException(id));
 			
-			updateConta(conta, contaAtualizado);
-			return repository.save(conta);
+			updateConta(conta, dto);
+			repository.save(conta);
+			return toDTO(conta);
 			
 		} catch (DataIntegrityViolationException e) {
 			throw new DatabaseException("Não foi possível atualizar a conta devido a uma restrição de integridade.");
 		}
 	}
 
-	private void updateConta(Conta conta, Conta contaAtualizado) {
-		conta.setAgencia(contaAtualizado.getAgencia());
-		conta.setDataCriacao(contaAtualizado.getDataCriacao());
-		conta.setNumeroConta(conta.getNumeroConta());
-		conta.setStatus(conta.getStatus());
-		conta.setTipo(conta.getTipo());
+	private void updateConta(Conta conta, ContaRequestDTO dto) {
+		conta.setAgencia(dto.agencia());
+		conta.setNumeroConta(dto.numeroConta());
+		conta.setStatus(dto.status());
+		conta.setTipo(dto.tipo());
 	}
 	
 	public void deletarConta(Long id) {
@@ -65,5 +78,10 @@ public class ContaService {
 		} catch(DataIntegrityViolationException e) {
 			throw new DatabaseException("Não foi possível excluir a conta devido a uma restrição de integridade.");
 		}
+	}
+	
+	public ContaResponseDTO toDTO(Conta conta) {
+		return new ContaResponseDTO(conta.getIdConta(), conta.getNumeroConta(), conta.getAgencia(), 
+				conta.getTipo(), conta.getStatus(), conta.getDataCriacao());
 	}
 }
