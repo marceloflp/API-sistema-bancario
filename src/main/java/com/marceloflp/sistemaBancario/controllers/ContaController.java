@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.marceloflp.sistemaBancario.entities.Conta;
+import com.marceloflp.sistemaBancario.dtos.ContaRequestDTO;
+import com.marceloflp.sistemaBancario.dtos.ContaResponseDTO;
 import com.marceloflp.sistemaBancario.services.ContaService;
 
 @RestController
@@ -28,33 +29,33 @@ public class ContaController {
 	}
 	
 	@GetMapping()
-	public ResponseEntity<List<Conta>> buscarContas(){
-		List<Conta> contas = service.buscarContas();
+	public ResponseEntity<List<ContaResponseDTO>> buscarContas(){
+		List<ContaResponseDTO> contas = service.buscarContas();
 		
 		return ResponseEntity.ok().body(contas);
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Conta> buscarConta(@PathVariable Long id){
-		Conta conta = service.buscarContaPorId(id);
+	public ResponseEntity<ContaResponseDTO> buscarConta(@PathVariable Long id){
+		ContaResponseDTO conta = service.buscarContaPorId(id);
 		
 		return ResponseEntity.ok().body(conta);
 	}
 	
 	@PostMapping()
-	public ResponseEntity<Conta> criarConta(@RequestBody Conta body){
-		Conta conta = service.criarConta(body);
+	public ResponseEntity<ContaResponseDTO> criarConta(@RequestBody ContaRequestDTO body){
+		ContaResponseDTO conta = service.criarConta(body);
 		
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
 				.path("/{id}")
-				.buildAndExpand(conta.getIdConta())
+				.buildAndExpand(conta.idConta())
 				.toUri();
 		return ResponseEntity.created(uri).body(conta);
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<Conta> atualizarConta(@PathVariable Long id, @RequestBody Conta body){
-		Conta conta = service.atualizaConta(id, body);
+	public ResponseEntity<ContaResponseDTO> atualizarConta(@PathVariable Long id, @RequestBody ContaRequestDTO body){
+		ContaResponseDTO conta = service.atualizaConta(id, body);
 		
 		return ResponseEntity.ok().body(conta);
 	}
